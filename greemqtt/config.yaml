@@ -1,0 +1,56 @@
+name: "Gree MQTT Bridge"
+version: "1.5.12"
+slug: "greemqtt"
+description: "Bridge between Gree air conditioners and MQTT with fast response system"
+url: "https://github.com/monteship/GreeMQTT"
+arch:
+  - amd64
+  - armv7
+  - aarch64
+init: false
+stage: "stable"
+startup: "services"
+boot: "auto"
+hassio_api: true
+hassio_role: "default"
+auto_uart: false
+host_network: true 
+ports:
+  "8080/tcp": null
+ports_description:
+  "8080/tcp": "Web interface (if available)"
+map:
+  - "config:rw"
+  - "share:rw"
+options:
+  mqtt_host: "core-mosquitto"
+  mqtt_port: 1883
+  mqtt_username: ""
+  mqtt_password: ""
+  mqtt_topic: "gree"
+  update_interval: 3
+  log_level: "INFO"
+  adaptive_polling_timeout: 45
+  adaptive_fast_interval: 1
+  mqtt_message_workers: 3
+  immediate_response_timeout: 5
+  network: []
+  subnet: ""
+  udp_port: 7000
+schema:
+  mqtt_host: "str"
+  mqtt_port: "port"
+  mqtt_username: "str?"
+  mqtt_password: "password?"
+  mqtt_topic: "str"
+  update_interval: "int(1,60)"
+  log_level: "list(DEBUG|INFO|WARNING|ERROR)?"
+  adaptive_polling_timeout: "int(10,300)?"
+  adaptive_fast_interval: "int(1,5)?"
+  mqtt_message_workers: "int(1,10)?"
+  immediate_response_timeout: "int(1,30)?"
+  network: 
+    - ip: "str"
+      name: "str?"
+  subnet: "str?"
+  udp_port: "port?"
