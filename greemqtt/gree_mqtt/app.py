@@ -21,13 +21,16 @@ HA_STATUS_TOPIC = "status"  # under the discovery prefix
 FAST_DISCOVERY_INTERVAL = 60.0  # while some unit is missing or offline
 
 
-def broadcast_addresses() -> list[str]:
-    """Broadcast address of every IPv4 interface on the host (add-on runs with host_network)."""
-    addrs = {"255.255.255.255"}
+MAX_SCAN_HOSTS = 1024  # don't unicast-scan anything bigger than a /22
+
+
+def local_networks() -> list[ipaddress.IPv4Network]:
+    """IPv4 networks of the host's interfaces (the add-on runs with host_network)."""
+    nets: set[ipaddress.IPv4Network] = set()
     try:
         import ifaddr
     except ImportError:  # pragma: no cover
-        return sorted(addrs)
+        return []
     for adapter in ifaddr.get_adapters():
         name = adapter.nice_name or adapter.name
         if name == "lo" or name.startswith(("docker", "hassio", "veth", "br-")):
@@ -41,8 +44,36 @@ def broadcast_addresses() -> list[str]:
                 continue
             if net.is_loopback or net.is_link_local:
                 continue
-            addrs.add(str(net.broadcast_address))
-    return sorted(addrs)
+            nets.add(net)
+    return sorted(nets)
+
+
+def broadcast_addresses() -> list[str]:
+    """Broadcast address of every host interface, plus the global one."""
+    return sorted({"255.255.255.255", *(str(n.broadcast_address) for n in local_networks())})
+
+
+def scan_hosts(subnets: list[str]) -> list[str]:
+    """Every host address in the given subnets (default: the host's own networks).
+
+    Unicast scans reach units that broadcast does not: mesh Wi-Fi, AP isolation,
+    routers that drop broadcast between Wi-Fi and wired.
+    """
+    nets: list[ipaddress.IPv4Network] = []
+    for item in subnets:
+        try:
+            nets.append(ipaddress.IPv4Network(item, strict=False))
+        except ValueError:
+            _LOGGER.warning("Ignoring invalid subnet %r in scan_subnets", item)
+    if not subnets:
+        nets = local_networks()
+    hosts: list[str] = []
+    for net in nets:
+        if net.num_addresses > MAX_SCAN_HOSTS:
+            _LOGGER.info("Not unicast-scanning %s (too large; list a smaller subnet in scan_subnets)", net)
+            continue
+        hosts.extend(str(h) for h in net.hosts())
+    return hosts
 
 
 class App:
@@ -133,10 +164,15 @@ class App:
     async def discovery_loop(self) -> None:
         targets_bcast = self.config.broadcast_addresses or broadcast_addresses()
         _LOGGER.info("Discovery broadcast addresses: %s", ", ".join(targets_bcast))
+        subnet_hosts = scan_hosts(self.config.scan_subnets) if self.config.scan_subnet else []
+        if subnet_hosts:
+            _LOGGER.info("Discovery also scans %d address(es) one by one", len(subnet_hosts))
         while True:
             targets = [(a, network.DEFAULT_PORT) for a in targets_bcast]
             # Unicast scans too: they work where broadcast is filtered (VLANs, mesh Wi-Fi).
-            targets += [(w.info.host, w.info.port) for w in self.workers]
+            known = {(w.info.host, w.info.port) for w in self.workers}
+            targets += sorted(known)
+            targets += [(h, network.DEFAULT_PORT) for h in subnet_hosts if (h, network.DEFAULT_PORT) not in known]
             try:
                 replies = await network.scan(targets, timeout=3.0)
             except OSError as err:

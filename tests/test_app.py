@@ -210,3 +210,22 @@ async def test_home_assistant_restart_republishes_discovery(tmp_path):
     finally:
         await stop(task)
         a.stop(); wt.cancel()
+
+
+async def test_unconfigured_unit_found_by_subnet_scan(tmp_path):
+    base = "gree_t4"
+    await clear_retained(base)
+    a = FakeGree("127.0.0.12", "c8f742000012", crypto.GCM)
+    await a.start()
+    w = Watcher(base, f"{base}_ha")
+    wt = asyncio.create_task(w.run())
+    await w.ready.wait()
+    cfg = make_config(tmp_path, [], base)
+    cfg.scan_subnets = ["127.0.0.8/29"]
+    app, task = await start_app(cfg)
+    try:
+        await w.wait(f"{base}/c8f742000012/availability", "online", timeout=20)
+        assert (tmp_path / "devices.json").exists()
+    finally:
+        await stop(task)
+        a.stop(); wt.cancel()

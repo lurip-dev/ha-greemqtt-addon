@@ -98,11 +98,13 @@ async def scan(
     replies: list[tuple[dict[str, Any], tuple[str, int]]] = []
     try:
         data = json.dumps({"t": "scan"}).encode()
-        for target in targets:
+        for n, target in enumerate(targets):
             try:
                 transport.sendto(data, target)
             except OSError as err:
                 _LOGGER.debug("Scan to %s failed: %s", target, err)
+            if n % 32 == 31:
+                await asyncio.sleep(0.05)  # pace subnet sweeps (ARP, small Wi-Fi modules)
         loop = asyncio.get_running_loop()
         deadline = loop.time() + timeout
         while (remaining := deadline - loop.time()) > 0:

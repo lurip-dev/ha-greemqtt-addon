@@ -88,3 +88,10 @@ def test_command_topic_parsing():
     assert t.parse_command("home/gree/abc/set/fan_mode") == ("abc", "fan_mode")
     assert t.parse_command("home/gree/abc/state") is None
     assert t.parse_command("other/abc/set/x") is None
+
+
+def test_scan_hosts():
+    from gree_mqtt.app import scan_hosts
+    assert len(scan_hosts(["192.168.5.0/24"])) == 254
+    assert scan_hosts(["10.0.0.0/16"]) == []  # too large
+    assert scan_hosts(["nonsense"]) == []
