@@ -17,6 +17,14 @@ configuration:
   broadcast_addresses:
     name: Broadcast addresses
     description: Override the broadcast addresses used for discovery (default: every host interface).
+  scan_subnet:
+    name: Scan subnets
+    description: >-
+      Besides broadcast, send a discovery packet to every address of the local network(s).
+      Finds units that broadcast does not reach (mesh Wi-Fi, AP isolation).
+  scan_subnets:
+    name: Subnets to scan
+    description: CIDR list, e.g. 192.168.1.0/24 (default: the host's own networks up to /22).
   mqtt_host:
     name: MQTT host
     description: Leave empty to use the Mosquitto broker add-on automatically.

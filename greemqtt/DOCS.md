@@ -44,15 +44,19 @@ poll_interval: 10
 discovery_interval: 300
 auto_add_discovered: true
 broadcast_addresses: []
+scan_subnet: true
+scan_subnets: []
 mqtt_host: ""            # empty = use the Mosquitto add-on
 mqtt_base_topic: gree
 discovery_prefix: homeassistant
 log_level: INFO
 ```
 
-- `devices` can stay empty: units found by discovery are added automatically
-  (`auto_add_discovered`) and remembered. Listing them by IP is still recommended, because
-  it does not depend on broadcast reaching the units (VLANs, mesh Wi-Fi, AP isolation).
+- `devices` can stay empty: units are found automatically and remembered
+  (`auto_add_discovered`). Discovery uses broadcast and, with `scan_subnet` (on by default),
+  also asks every address of the local network(s) one by one, so units behind mesh Wi-Fi or
+  AP isolation are found too. Use `scan_subnets` (e.g. `192.168.1.0/24`) when the units are
+  in another network. Listing units by IP is optional; it only gives them names.
 - `temp_offset`: most units report room temperature +40; some do not, and some switch
   after a power loss. `auto` handles both. Set `0` or `40` if the reading is still wrong.
 - `key` lets you supply a known device key; normally it is obtained automatically.

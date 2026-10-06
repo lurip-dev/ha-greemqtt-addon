@@ -34,6 +34,8 @@ class Config:
     discovery_interval: float = 300.0
     auto_add_discovered: bool = True
     broadcast_addresses: list[str] = field(default_factory=list)
+    scan_subnet: bool = True
+    scan_subnets: list[str] = field(default_factory=list)
     devices: list[DeviceInfo] = field(default_factory=list)
     request_timeout: float = 3.0
     log_level: str = "INFO"
@@ -104,6 +106,8 @@ def load_config(path: Path | None = None) -> Config:
         discovery_interval=float(opts.get("discovery_interval") or 300),
         auto_add_discovered=bool(opts.get("auto_add_discovered", True)),
         broadcast_addresses=[a for a in opts.get("broadcast_addresses") or [] if a],
+        scan_subnet=bool(opts.get("scan_subnet", True)),
+        scan_subnets=[a for a in opts.get("scan_subnets") or [] if a],
         devices=[_device_from_option(d) for d in opts.get("devices") or [] if d.get("host")],
         request_timeout=float(opts.get("request_timeout") or 3),
         log_level=str(opts.get("log_level") or "INFO").upper(),

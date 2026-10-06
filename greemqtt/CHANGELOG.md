@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+- Discovery also scans every address of the local network(s) one by one (`scan_subnet`,
+  on by default; `scan_subnets` to pick networks), like 1.x did. This finds units that
+  broadcast does not reach, so `devices` can stay empty.
+
 ## 2.0.0
 
 Complete rewrite. The add-on no longer wraps the `monteship/greemqtt` image; it ships
