@@ -1,0 +1,37 @@
+configuration:
+  devices:
+    name: Air conditioners
+    description: >-
+      Units to manage, by IP address (give them DHCP reservations). Optional per unit:
+      name, mac, port, key, encryption (auto/ecb/gcm), temp_offset (auto/0/40), uid.
+      Units found by discovery are added automatically as well.
+  poll_interval:
+    name: Poll interval
+    description: Seconds between status reads of each unit.
+  discovery_interval:
+    name: Discovery interval
+    description: Seconds between LAN scans when every unit is online (60 s while any is missing).
+  auto_add_discovered:
+    name: Add discovered units
+    description: Manage units found on the network even if they are not listed above.
+  broadcast_addresses:
+    name: Broadcast addresses
+    description: Override the broadcast addresses used for discovery (default: every host interface).
+  mqtt_host:
+    name: MQTT host
+    description: Leave empty to use the Mosquitto broker add-on automatically.
+  mqtt_port:
+    name: MQTT port
+  mqtt_username:
+    name: MQTT username
+  mqtt_password:
+    name: MQTT password
+  mqtt_base_topic:
+    name: Base topic
+  discovery_prefix:
+    name: Home Assistant discovery prefix
+  request_timeout:
+    name: Request timeout
+    description: Seconds to wait for a unit's answer (each request is retried twice).
+  log_level:
+    name: Log level
