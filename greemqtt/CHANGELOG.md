@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2
+
+- Fix "Missing option 'scan_subnet'" when saving options after upgrading: every option
+  except `devices` and `broadcast_addresses` is now optional and falls back to its default.
+
 ## 2.0.1
 
 - Discovery also scans every address of the local network(s) one by one (`scan_subnet`,

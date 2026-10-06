@@ -1,5 +1,5 @@
 name: "Gree MQTT Bridge"
-version: "2.0.1"
+version: "2.0.2"
 slug: "greemqtt"
 description: "Gree air conditioners in Home Assistant over MQTT, with reliable reconnects"
 url: "https://github.com/lurip-dev/ha-greemqtt-addon"
@@ -40,19 +40,19 @@ schema:
       encryption: list(auto|ecb|gcm)?
       temp_offset: list(auto|0|40)?
       uid: int?
-  poll_interval: int(3,300)
-  discovery_interval: int(30,3600)
-  auto_add_discovered: bool
+  poll_interval: int(3,300)?
+  discovery_interval: int(30,3600)?
+  auto_add_discovered: bool?
   broadcast_addresses:
     - str?
-  scan_subnet: bool
+  scan_subnet: bool?
   scan_subnets:
     - str?
   mqtt_host: str?
-  mqtt_port: port
+  mqtt_port: port?
   mqtt_username: str?
   mqtt_password: password?
-  mqtt_base_topic: str
-  discovery_prefix: str
-  request_timeout: int(1,10)
-  log_level: list(DEBUG|INFO|WARNING|ERROR)
+  mqtt_base_topic: str?
+  discovery_prefix: str?
+  request_timeout: int(1,10)?
+  log_level: list(DEBUG|INFO|WARNING|ERROR)?
